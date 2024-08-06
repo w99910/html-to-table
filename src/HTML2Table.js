@@ -25,7 +25,7 @@ export default class HTML2Table {
         let css = this.cssParser.parse(element);
 
         if (element instanceof SVGElement) {
-           return this.convertSvgToImage(element)
+            return this.convertSvgToImage(element)
         }
 
         if (this.settings.supportedHTMLTags.includes(element.tagName.toLowerCase()) && !css.isHorizontal) {
@@ -52,7 +52,7 @@ export default class HTML2Table {
 
         let children = element.childNodes;
 
-        let isText = !css.isHorizontal && Array.from(children).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV','SECTION','ARTICLE','MAIN','ASIDE'].includes(child.tagName)).length === 0;
+        let isText = !css.isHorizontal && Array.from(children).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE'].includes(child.tagName)).length === 0;
         // console.log(isText, element)
 
         if (isText) {
@@ -74,7 +74,7 @@ export default class HTML2Table {
                 let child;
                 if (node.nodeType === Node.ELEMENT_NODE) {
 
-                    child = this.#render(node);
+                    child = this.convert(node);
                 } else {
                     child = document.createElement('span');
                     child.innerText = node.textContent;
@@ -128,8 +128,8 @@ export default class HTML2Table {
         return table;
     }
 
-    convertSvgToImage(element){
-        if(!element instanceof SVGElement){
+    convertSvgToImage(element) {
+        if (!element instanceof SVGElement) {
             return element;
         }
         let imgEl = document.createElement('img');
@@ -159,7 +159,7 @@ export default class HTML2Table {
         return imgEl;
     }
 
-    getCloneNode(element){
+    getCloneNode(element) {
         // console.log(element)
         let cloneChild = element.cloneNode(false)
         if (element.nodeType === Node.ELEMENT_NODE) {
@@ -168,8 +168,8 @@ export default class HTML2Table {
                 cloneChild.style[prop] = _css[prop];
             })
 
-            Array.from(element.attributes).forEach((attribute)=>{
-                if(['href','src'].includes(attribute.name)){
+            Array.from(element.attributes).forEach((attribute) => {
+                if (['href', 'src'].includes(attribute.name)) {
                     return;
                 }
                 cloneChild.removeAttribute(attribute.name)
@@ -179,7 +179,7 @@ export default class HTML2Table {
         let children = element.childNodes;
         // first apply css style to children
         Array.from(children).forEach((child) => {
-            cloneChild.appendChild(child instanceof SVGElement? this.convertSvgToImage(child) : this.getCloneNode(child))
+            cloneChild.appendChild(child instanceof SVGElement ? this.convertSvgToImage(child) : this.getCloneNode(child))
         })
 
         return cloneChild;
