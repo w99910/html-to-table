@@ -1,28 +1,29 @@
 export default {
     supportedCssProperties: [
-        'background-color',
+        'backgroundColor',
         'background', // Shorthand for multiple background properties
-        'background-image',
-        'background-position',
+        'backgroundImage',
+        'backgroundPosition',
         'border(.)+',        // Shorthand for border-width, border-style, and border-color
         'margin(.)+',         // Shorthand for all margin directions
         'padding(.)+',
         'width',
         'height',
-        'max-width',
-        'max-height',
+        'maxWidth',
+        'maxHeight',
         'color',
-        'font-size',
-        'font-weight',
-        'text-align',
-        'text-decoration',
-        '-webkit-text-decoration-color', // Prefix for text-decoration-color
-        'text-indent',
-        'text-transform',
-        'letter-spacing',
+        'fontSize',
+        'font',
+        'fontWeight',
+        'textAlign',
+        'textDecoration',
+        '-webkitTextDecorationColor', // Prefix for text-decoration-color
+        'textIndent',
+        'textTransform',
+        'letterSpacing',
         // 'display', // For 'block' or 'inline-block'
-        'list-style-type',
-        'list-style-position',
+        'listStyleType',
+        'listStylePosition',
     ],
     supportedHTMLTags: [
         'p',

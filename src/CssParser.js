@@ -37,6 +37,10 @@ export default class CssParser {
         Object.keys(elementCSSProperties).forEach((property) => {
             if (isValidCSS(property)) {
                 try {
+                    if (property.startsWith('font')) {
+                        settings[property] = elementCSSProperties[property];
+                        return;
+                    }
                     let value = convertToPixel(elementCSSProperties[property], parentElement, property.includes(['Top', 'Bottom', 'height']))
                     if (value && parentElement) {
                         if (property.includes('width') || property.includes('left') || property.includes('right')) {
@@ -60,7 +64,6 @@ export default class CssParser {
 
             }
         })
-
         return settings;
     }
 }

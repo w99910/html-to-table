@@ -29,8 +29,6 @@ export default class HTML2Table {
         }
 
         if (this.settings.supportedHTMLTags.includes(element.tagName.toLowerCase()) && !css.isHorizontal) {
-            // if not horizontal
-            console.log(element)
             return this.getCloneNode(element);
         }
 
