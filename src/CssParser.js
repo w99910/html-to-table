@@ -7,6 +7,7 @@ export default class CssParser {
     }
 
     parse(element) {
+        if(!element)return {}
         // initially parse supported css properties
         // change non-pixel unit to pixel unit
         let elementCSSProperties = window.getComputedStyle(element);
@@ -21,7 +22,7 @@ export default class CssParser {
                 break;
         }
 
-        if (elementCSSProperties.margin === '0 auto') {
+        if (elementCSSProperties.margin === '0 auto' || (elementCSSProperties.display === 'flex' && elementCSSProperties.alignItems === 'center')) {
             settings.shouldCenter = true;
         }
 

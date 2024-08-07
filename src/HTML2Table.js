@@ -2,9 +2,8 @@ import Settings from "./Settings.js";
 import CssParser from "./CssParser.js";
 
 export default class HTML2Table {
-    constructor(element) {
+    constructor() {
         this._excludeElementPattern = null;
-        this.parent = element;
         this.settings = Settings;
         this.cssParser = new CssParser;
         this.img = new Image
@@ -15,7 +14,9 @@ export default class HTML2Table {
         return this;
     }
 
-    convert(element) {
+    convert(element, options ={
+        initialWidth: null,
+    }) {
         if (this._excludeElementPattern) {
             if (this._excludeElementPattern.test(element.className) || this._excludeElementPattern.test(element.id)) {
                 return null;
@@ -23,6 +24,8 @@ export default class HTML2Table {
         }
 
         let css = this.cssParser.parse(element);
+
+        let parentCSS = this.cssParser.parse(element.parentElement)
 
         if (element instanceof SVGElement) {
             return this.convertSvgToImage(element)
@@ -34,8 +37,8 @@ export default class HTML2Table {
 
         let table = document.createElement('table');
 
-        table.setAttribute('align', css.shouldCenter ? 'center' : 'left')
-        table.setAttribute('width', css['width']);
+        table.setAttribute('align', css.shouldCenter || parentCSS?.shouldCenter ? 'center' : 'left')
+        table.setAttribute('width', options.initialWidth ?? css['width']);
         table.setAttribute('border', 0);
         table.setAttribute('cellpadding', 0);
         table.setAttribute('cellspacing', 0);
@@ -44,6 +47,10 @@ export default class HTML2Table {
             table.style[prop] = css[prop];
         })
 
+        if(options.initialWidth){
+            table.style.width = options.initialWidth;
+        }
+
         let tbody = document.createElement('tbody');
 
         let _tr = document.createElement('tr');
@@ -51,7 +58,7 @@ export default class HTML2Table {
         let children = element.childNodes;
 
         let isText = !css.isHorizontal && Array.from(children).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE'].includes(child.tagName)).length === 0;
-        // console.log(isText, element)
+        console.log(isText, element, css)
 
         if (isText) {
             let elementClone = this.getCloneNode(element)
@@ -148,8 +155,6 @@ export default class HTML2Table {
 
             // Display the PNG
             imgEl.src = canvas.toDataURL('image/png');
-
-            console.log(imgEl)
         };
 
         img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
