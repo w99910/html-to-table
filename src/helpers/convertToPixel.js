@@ -1,4 +1,4 @@
-export default function (_value, parentElement, isVertical = false) {
+export default function (_value, parentElement) {
     let splitBySpace = _value.split(' ');
     let value = splitBySpace[0];
     const numberValue = parseFloat(value); // Extract numeric part

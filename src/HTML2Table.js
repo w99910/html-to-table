@@ -14,111 +14,131 @@ export default class HTML2Table {
         return this;
     }
 
-    convert(element, options ={
-        initialWidth: null,
-    }) {
+    applyCss(element, css = {}, excludeProperties = [], onlyProperties = []) {
+        Object.keys(css).forEach((property) => {
+            if (onlyProperties.length > 0 && !onlyProperties.includes(property)) return;
+            if (excludeProperties.includes(property)) return;
+            element.style[property] = css[property];
+        });
+    }
+
+    convert(element, parentElement) {
         if (this._excludeElementPattern) {
             if (this._excludeElementPattern.test(element.className) || this._excludeElementPattern.test(element.id)) {
                 return null;
             }
         }
-
+        let object = {
+            width: '',
+            rows: {},
+        }
         let css = this.cssParser.parse(element);
-
-        let parentCSS = this.cssParser.parse(element.parentElement)
-
-        if (element instanceof SVGElement) {
-            return this.convertSvgToImage(element)
-        }
-
-        if (this.settings.supportedHTMLTags.includes(element.tagName.toLowerCase()) && !css.isHorizontal) {
-            return this.getCloneNode(element);
-        }
-
-        let table = document.createElement('table');
-
-        table.setAttribute('align', css.shouldCenter || parentCSS?.shouldCenter ? 'center' : 'left')
-        table.setAttribute('width', options.initialWidth ?? css['width']);
-        table.setAttribute('border', 0);
-        table.setAttribute('cellpadding', 0);
-        table.setAttribute('cellspacing', 0);
-
-        Object.keys(css).forEach((prop) => {
-            table.style[prop] = css[prop];
-        })
-
-        if(options.initialWidth){
-            table.style.width = options.initialWidth;
-        }
-
-        let tbody = document.createElement('tbody');
-
-        let _tr = document.createElement('tr');
-
-        let children = element.childNodes;
-
-        let isText = !css.isHorizontal && Array.from(children).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE'].includes(child.tagName)).length === 0;
-        console.log(isText, element, css)
-
-        if (isText) {
-            let elementClone = this.getCloneNode(element)
-            let _innerTable = this.createTable(css)
-            // console.log(element, _innerTable, css)
-            let innerTableRow = document.createElement('tr');
-            let innerTableData = document.createElement('td');
-            innerTableData.innerHTML = elementClone.innerHTML;
-            innerTableRow.appendChild(innerTableData);
-            _innerTable.querySelector('tbody').appendChild(innerTableRow)
-            let td = document.createElement('td');
-
-            td.appendChild(_innerTable)
-            _tr.appendChild(td);
-        } else {
-            for (let i = 0; i <= children.length - 1; i++) {
-                let node = children[i];
-                let child;
-                if (node.nodeType === Node.ELEMENT_NODE) {
-
-                    child = this.convert(node);
-                } else {
-                    child = document.createElement('span');
-                    child.innerText = node.textContent;
+        if (element.nodeType !== Element.TEXT_NODE) {
+            let childNodes = Array.from(element.childNodes);
+            let isText = Array.from(childNodes).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE', 'IMG'].includes(child.tagName)).length === 0;
+            let rowIndex = 0;
+            childNodes.forEach((childNode, i) => {
+                if (!object.rows.hasOwnProperty(rowIndex)) {
+                    object.rows[rowIndex] = {
+                        children: [],
+                        top: 0,
+                        bottom: 0,
+                    }
                 }
-                // console.log(element,node, child)
-                if (!child) {
-                    continue;
+                if (childNode.nodeType === Element.TEXT_NODE || isText) {
+                    if (childNode.textContent.trim().length === 0) {
+                        return;
+                    }
+                    let lastIndex = object.rows[rowIndex].children.length - 1;
+                    if (lastIndex < 0) {
+                        object.rows[rowIndex].children.push(this.getCloneNode(childNode))
+                    } else {
+                        let container = document.createElement('div');
+                        let lastChild = object.rows[rowIndex].children[lastIndex];
+                        if (lastChild.nodeType === Element.TEXT_NODE) {
+                            container.innerHTML += lastChild.textContent;
+                        } else {
+                            container.innerHTML += lastChild;
+                        }
+
+                        let currentChild = this.getCloneNode(childNode);
+
+                        if (currentChild.nodeType === Element.TEXT_NODE) {
+                            container.innerHTML += currentChild.textContent;
+                        } else {
+                            container.appendChild(currentChild);
+                        }
+                        object.rows[rowIndex].children[lastIndex] = container.innerHTML;
+                    }
+                    return;
                 }
 
+                if (childNode.nodeType === Element.ELEMENT_NODE) {
+                    let childRect = childNode.getBoundingClientRect();
+
+                    // check rowIndex by top and bottom offset
+                    if (object.rows[rowIndex].top === 0) {
+                        object.rows[rowIndex].top = childRect.top;
+                    }
+
+                    if (object.rows[rowIndex].bottom === 0) {
+                        object.rows[rowIndex].bottom = childRect.bottom;
+                    }
+
+                    if (childRect.top >= object.rows[rowIndex].bottom) {
+                        rowIndex++;
+                        object.rows[rowIndex] = {
+                            children: [],
+                            top: childRect.top,
+                            bottom: childRect.bottom,
+                        }
+                    }
+
+                    if (object.rows[rowIndex].top > childRect.top) {
+                        object.rows[rowIndex].top = childRect.top;
+                    }
+
+                    if (childRect.bottom > object.rows[rowIndex].bottom) {
+                        object.rows[rowIndex].bottom = childRect.bottom;
+                    }
+
+                    let node = this.settings.supportedHTMLTags.includes(childNode.tagName.toLowerCase()) ?
+                        this.getCloneNode(childNode) : this.convert(childNode, element)
+                    if (!node) return;
+                    object.rows[rowIndex].children.push(node)
+                }
+            })
+
+        } else if (element.textContent.trim().length > 0) {
+            object.rows[0].push(element.textContent);
+        }
+        let table = this.createTable();
+        table.setAttribute('align', css.tableAlign ?? 'left');
+        table.setAttribute('valign', css.tableVAlign ?? 'top');
+        this.applyCss(table, css, ['width'])
+        // _td.appendChild(table);
+        Object.keys(object.rows).forEach((rowIndex) => {
+            let tr = document.createElement('tr');
+            object.rows[rowIndex].children.forEach((childNode, i) => {
                 let td = document.createElement('td');
-                td.setAttribute('align', 'center');
-                td.setAttribute('valign', 'top')
-                td.appendChild(child);
-                if (css.isHorizontal) {
-                    console.log(element)
-                    _tr.appendChild(td)
-                    continue;
+                td.setAttribute('align', css.tableAlign ?? 'left');
+                td.setAttribute('valign', css.tableVAlign ?? 'top');
+                if (parentElement) {
+                    td.style.width = css.width;
+
+                    if (childNode.tagName !== 'TABLE' && childNode.getBoundingClientRect) {
+                        td.style.width = childNode.getBoundingClientRect().width + 'px';
+                    }
                 }
-
-                let tr = document.createElement('tr')
-
+                if (typeof childNode === 'string') {
+                    td.innerHTML = childNode;
+                } else {
+                    td.appendChild(childNode)
+                }
                 tr.appendChild(td);
-                tbody.appendChild(tr);
-            }
-        }
-
-
-        if (children.length === 0) {
-            let td = document.createElement('td');
-            td.innerText = element.innerText;
-            _tr.appendChild(td);
-        }
-
-        if (_tr.children.length !== 0) {
-            tbody.appendChild(_tr);
-        }
-
-        table.appendChild(tbody)
-
+            })
+            table.querySelector('tbody').appendChild(tr);
+        })
         return table;
     }
 
@@ -147,13 +167,7 @@ export default class HTML2Table {
             // Set canvas size
             canvas.width = element.getBoundingClientRect().width;
             canvas.height = element.getBoundingClientRect().height;
-
-            // Draw the SVG onto the canvas
             canvas.getContext('2d').drawImage(img, 0, 0);
-
-            // Convert canvas to PNG
-
-            // Display the PNG
             imgEl.src = canvas.toDataURL('image/png');
         };
 
@@ -164,12 +178,12 @@ export default class HTML2Table {
 
     getCloneNode(element) {
         // console.log(element)
+        if (element instanceof SVGElement) {
+            return this.convertSvgToImage(element)
+        }
         let cloneChild = element.cloneNode(false)
         if (element.nodeType === Node.ELEMENT_NODE) {
             let _css = this.cssParser.parse(element);
-            Object.keys(_css).forEach((prop) => {
-                cloneChild.style[prop] = _css[prop];
-            })
 
             Array.from(element.attributes).forEach((attribute) => {
                 if (['href', 'src'].includes(attribute.name)) {
@@ -177,12 +191,17 @@ export default class HTML2Table {
                 }
                 cloneChild.removeAttribute(attribute.name)
             })
+
+            Object.keys(_css).forEach((prop) => {
+                cloneChild.style[prop] = _css[prop];
+            })
         }
+
 
         let children = element.childNodes;
         // first apply css style to children
         Array.from(children).forEach((child) => {
-            cloneChild.appendChild(child instanceof SVGElement ? this.convertSvgToImage(child) : this.getCloneNode(child))
+            cloneChild.appendChild(this.getCloneNode(child))
         })
 
         return cloneChild;

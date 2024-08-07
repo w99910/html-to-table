@@ -1,7 +1,6 @@
 import HTML2Table from "./src/HTML2Table.js";
 
 let w = new HTML2Table();
-// document.querySelector('#test').appendChild(w);
 
 document.querySelector('button').addEventListener('click',function(){
     let placeholder = document.createElement('div');
@@ -10,8 +9,14 @@ document.querySelector('button').addEventListener('click',function(){
     placeholder.style.color = '#f2f2f2'
     placeholder.innerHTML = document.querySelector('textarea').value;
     document.body.appendChild(placeholder);
-    document.getElementById('output').appendChild(w.convert(placeholder, {
+    document.getElementById('output').innerText = w.convert(placeholder, {
         initialWidth: '100%'
-    }))
-    // placeholder.remove();
+    }).outerHTML
+    placeholder.remove();
 });
+
+// document.getElementById('output').appendChild(w.convert(document.querySelector('#sample'), {
+//     initialWidth: '100%'
+// }))
+
+// console.log(w.cssParser.parse(document.querySelector('#sample > div'), false))

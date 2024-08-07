@@ -37,6 +37,7 @@ export default {
         'a',
         'image',
         'img',
+        'svg',
         'table', 'td', 'tr', 'tbody',
         'code'
     ]

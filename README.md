@@ -1,5 +1,7 @@
 # HTML To Table
 
+> DEMO: https://w99910.github.io/html-to-table/
+
 ### It's zero dependency.
 
 I have been trying to send emails using html layout but there are lots of html elements and styles that email clients
@@ -40,3 +42,7 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 ```
 
 ## MIT LICENSE
+
+## CHANGELOG
+
+- **0.1.0** - Rewrite the logic by using bounding client rect to determine the layout
