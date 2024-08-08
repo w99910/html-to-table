@@ -62,7 +62,7 @@ previewBtn.addEventListener('click',function(e){
 })
 
 codeBtn.addEventListener('click',function(e){
-    output.innerText = outputValue
+    output.innerText = outputValue.innerHTML
 })
 
 // document.querySelector('#action').click();
