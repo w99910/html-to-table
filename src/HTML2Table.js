@@ -46,29 +46,33 @@ export default class HTML2Table {
                     }
                 }
                 if (childNode.nodeType === Element.TEXT_NODE || isText) {
-                    if (childNode.textContent.trim().length === 0) {
+                    if (childNode.nodeType === Element.TEXT_NODE && childNode.textContent.trim().length === 0) {
                         return;
                     }
+
                     let lastIndex = object.rows[rowIndex].children.length - 1;
                     if (lastIndex < 0) {
-                        object.rows[rowIndex].children.push(this.getCloneNode(childNode))
-                    } else {
                         let container = document.createElement('div');
+                        container.setAttribute('temp', "true")
+                        container.appendChild(this.getCloneNode(childNode))
+                        object.rows[rowIndex].children.push(container)
+                    } else {
                         let lastChild = object.rows[rowIndex].children[lastIndex];
-                        if (lastChild.nodeType === Element.TEXT_NODE) {
-                            container.innerHTML += lastChild.textContent;
-                        } else {
-                            container.innerHTML += lastChild;
-                        }
-
+                        // if (lastChild.nodeType === Element.TEXT_NODE) {
+                        //     container.innerHTML += lastChild.textContent;
+                        // } else {
+                        //     // console.log(lastChild)
+                        //     container.appendChild(lastChild);
+                        // }
                         let currentChild = this.getCloneNode(childNode);
 
-                        if (currentChild.nodeType === Element.TEXT_NODE) {
-                            container.innerHTML += currentChild.textContent;
-                        } else {
-                            container.appendChild(currentChild);
-                        }
-                        object.rows[rowIndex].children[lastIndex] = container.innerHTML;
+                        // if (currentChild.nodeType === Element.TEXT_NODE) {
+                        //     container.innerHTML += currentChild.textContent;
+                        // } else {
+                            lastChild.appendChild(currentChild);
+                        // }
+                        // console.log(lastChild)
+                        object.rows[rowIndex].children[lastIndex] = lastChild;
                     }
                     return;
                 }
@@ -112,11 +116,20 @@ export default class HTML2Table {
         } else if (element.textContent.trim().length > 0) {
             object.rows[0].push(element.textContent);
         }
+
         let table = this.createTable();
         table.setAttribute('align', css.tableAlign ?? 'left');
         table.setAttribute('valign', css.tableVAlign ?? 'top');
         this.applyCss(table, css, ['width'])
-        // _td.appendChild(table);
+
+        if(!parentElement){
+            // set width 100%
+            table.style.width = '100%'
+            table.style.height = '100%'
+            table.style.margin = '0';
+            table.style.padding = '0'
+        }
+
         Object.keys(object.rows).forEach((rowIndex) => {
             let tr = document.createElement('tr');
             object.rows[rowIndex].children.forEach((childNode, i) => {
@@ -127,13 +140,23 @@ export default class HTML2Table {
                     td.style.width = css.width;
 
                     if (childNode.tagName !== 'TABLE' && childNode.getBoundingClientRect) {
-                        td.style.width = childNode.getBoundingClientRect().width + 'px';
+                      let width = childNode.getBoundingClientRect().width;
+                      if(width > 0){
+                          td.style.width =  width + 'px';
+                      }
                     }
                 }
                 if (typeof childNode === 'string') {
                     td.innerHTML = childNode;
                 } else {
-                    td.appendChild(childNode)
+                    if(childNode.getAttribute('temp')){
+                        td.style.display = 'inline-block'
+                        Array.from(childNode.childNodes).forEach((innerChild)=>{
+                            td.appendChild(innerChild)
+                        })
+                    }else{
+                        td.appendChild(childNode)
+                    }
                 }
                 tr.appendChild(td);
             })
@@ -158,6 +181,8 @@ export default class HTML2Table {
             return element;
         }
         let imgEl = document.createElement('img');
+        imgEl.style.verticalAlign = 'middle';
+        element.setAttribute('stroke' ,window.getComputedStyle(element).color)
 
         let img = new Image();
         const canvas = document.createElement('canvas');
@@ -165,11 +190,14 @@ export default class HTML2Table {
 
         img.onload = function () {
             // Set canvas size
-            canvas.width = element.getBoundingClientRect().width;
-            canvas.height = element.getBoundingClientRect().height;
-            canvas.getContext('2d').drawImage(img, 0, 0);
+            canvas.width = element.getBoundingClientRect().width > 0 ? element.getBoundingClientRect().width: element.getAttribute('width');
+            canvas.height = element.getBoundingClientRect().height ? element.getBoundingClientRect().height: element.getAttribute('height');
+            let ctx = canvas.getContext('2d')
+            ctx.drawImage(img, 0, 0);
             imgEl.src = canvas.toDataURL('image/png');
         };
+
+        // console.log(svgData)
 
         img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
 
@@ -186,7 +214,7 @@ export default class HTML2Table {
             let _css = this.cssParser.parse(element);
 
             Array.from(element.attributes).forEach((attribute) => {
-                if (['href', 'src'].includes(attribute.name)) {
+                if (['href', 'src','title','alt'].includes(attribute.name)) {
                     return;
                 }
                 cloneChild.removeAttribute(attribute.name)
@@ -195,6 +223,8 @@ export default class HTML2Table {
             Object.keys(_css).forEach((prop) => {
                 cloneChild.style[prop] = _css[prop];
             })
+
+            cloneChild.style.display = 'inline-block'
         }
 
 

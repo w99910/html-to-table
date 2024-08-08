@@ -13,32 +13,6 @@ export default class CssParser {
         let elementCSSProperties = window.getComputedStyle(element);
         let settings = {};
 
-        // switch (elementCSSProperties.display) {
-        //     case 'flex' || 'inline-flex':
-        //         settings.isHorizontal = elementCSSProperties.flexDirection === 'row' && elementCSSProperties.flexWrap !== 'wrap';
-        //         settings.tableAlign = elementCSSProperties.alignItems;
-        //         settings.tableVAlign = 'top'
-        //         switch(elementCSSProperties.justifyContent){
-        //             case 'start' : settings.tableVAlign = 'top';break;
-        //             case 'center': settings.tableVAlign = 'center'; break;
-        //             case 'end': settings.tableVAlign = 'bottom'
-        //         }
-        //
-        //         let margin = elementCSSProperties.margin.split(' ');
-        //         if(margin[0] && margin[0] === 'auto'){
-        //             settings.tableAlign = 'center';
-        //         }
-        //
-        //         if(margin[1] && margin[1] === 'auto'){
-        //             settings.tableVAlign = 'center'
-        //         }
-        //
-        //         break;
-        //     case 'grid':
-        //         settings.isHorizontal = elementCSSProperties.gridTemplateColumns !== 'none';
-        //         break;
-        // }
-
         settings.tableAlign = 'left';
 
         if (elementCSSProperties.textAlign !== 'start') {
@@ -48,18 +22,30 @@ export default class CssParser {
         settings.tableVAlign = 'top'
         switch (elementCSSProperties.justifyContent) {
             case 'start' :
-                settings.tableVAlign = 'top';
+               elementCSSProperties.flexDirection === 'column'? settings.tableVAlign = 'top': settings.tableAlign = 'left';
                 break;
             case 'center':
-                settings.tableVAlign = 'center';
+                elementCSSProperties.flexDirection === 'column'? settings.tableVAlign = 'center': settings.tableAlign = 'center';
                 break;
             case 'end':
-                settings.tableVAlign = 'bottom';
+                elementCSSProperties.flexDirection === 'column'? settings.tableVAlign = 'bottom': settings.tableAlign = 'right';
                 break;
         }
 
-        if (['left', 'center', 'right'].includes(elementCSSProperties.alignItems)) {
-            settings.tableAlign = elementCSSProperties.alignItems;
+        switch (elementCSSProperties.alignItems) {
+            case 'start' :
+                elementCSSProperties.flexDirection === 'column'? settings.tableAlign = 'top': settings.tableVAlign = 'left';
+                break;
+            case 'center':
+                elementCSSProperties.flexDirection === 'column'? settings.tableAlign = 'center': settings.tableVAlign = 'center';
+                break;
+            case 'end':
+                elementCSSProperties.flexDirection === 'column'? settings.tableAlign = 'bottom': settings.tableVAlign = 'right';
+                break;
+        }
+
+        if (['left', 'center', 'right'].includes(elementCSSProperties.alignSelf)) {
+            settings.margin = 'auto auto'
         }
 
         let margin = elementCSSProperties.margin.split(' ');
@@ -98,15 +84,18 @@ export default class CssParser {
                         }
 
                     }
+                    if(property.includes('width')){
+                        // console.log(element, value, elementCSSProperties[property])
+                    }
                     if (property === 'display' && !elementCSSProperties[property].includes('block')) {
                         return;
                     }
                     if (typeof value === 'number') {
                         value += 'px';
-
                         if (value === '0px') {
                             value = 'auto'
                         }
+
                     }
                     settings[property] = value ? value : elementCSSProperties[property];
                 } catch (e) {

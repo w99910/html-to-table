@@ -44,4 +44,7 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 
 ## CHANGELOG
 
+- **0.1.1** 
+  - Add `alt` and `title` to allowed attribute when it is cloned. 
+  - Fix `width` being `0` in some cases.
 - **0.1.0** - Rewrite the logic by using bounding client rect to determine the layout
