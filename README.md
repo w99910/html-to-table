@@ -2,15 +2,14 @@
 
 > DEMO: https://w99910.github.io/html-to-table/
 
-### It's zero dependency.
+### It's zero dependency and light-weight with **18.2kb** unpacked size.
 
 I have been trying to send emails using html layout but there are lots of html elements and styles that email clients
 don't support.
 
 So I am working on this library to convert almost html layout to email-compatible table layout.
 
-> Note: this library do not cover most of the layout automagically. Feel free to pull and change it yourself as you
-> needs.
+> Note: I don't guarantee that this library can convert any html element to your desired layout all the time. Feel free to tune the result as you want.
 
 ## Installation
 
