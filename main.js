@@ -56,7 +56,7 @@ document.querySelector('#action').addEventListener('click',function(e){
         e.target.innerText = 'Reset';
     // }, 1200)
 
-    // placeholder.remove();
+    placeholder.remove();
 });
 
 previewBtn.addEventListener('click',function(e){

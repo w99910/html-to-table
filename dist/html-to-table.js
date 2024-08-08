@@ -1,4 +1,4 @@
-const m = {
+const h = {
   supportedCssProperties: [
     "backgroundColor",
     "background",
@@ -57,172 +57,190 @@ const m = {
     "code"
   ]
 };
-function b(u, i) {
+function b(u, n) {
   let t = u.split(" ")[0];
-  const n = parseFloat(t);
-  if (isNaN(n))
+  const e = parseFloat(t);
+  if (isNaN(e))
     return !1;
   if (t.endsWith("px"))
-    return n;
+    return e;
   if (t.endsWith("%"))
     return !1;
   if (t.endsWith("em") || t.endsWith("rem")) {
-    const s = parseFloat(getComputedStyle(i).fontSize);
-    return n * s;
+    const l = parseFloat(getComputedStyle(n).fontSize);
+    return e * l;
   } else if (t.endsWith("vw")) {
-    const s = window.innerWidth;
-    return n / 100 * s;
+    const l = window.innerWidth;
+    return e / 100 * l;
   } else if (t.endsWith("vh")) {
-    const s = window.innerHeight;
-    return n / 100 * s;
+    const l = window.innerHeight;
+    return e / 100 * l;
   } else if (t.endsWith("vmin")) {
-    const s = Math.min(window.innerWidth, window.innerHeight);
-    return n / 100 * s;
+    const l = Math.min(window.innerWidth, window.innerHeight);
+    return e / 100 * l;
   } else if (t.endsWith("vmax")) {
-    const s = Math.max(window.innerWidth, window.innerHeight);
-    return n / 100 * s;
+    const l = Math.max(window.innerWidth, window.innerHeight);
+    return e / 100 * l;
   } else
-    return n;
+    return e;
+}
+class m {
+  constructor() {
+    this.supportedCSSProperties = h.supportedCssProperties;
+  }
+  parse(n, s = !1) {
+    if (!n) return {};
+    let t = window.getComputedStyle(n), e = {};
+    switch (e.tableAlign = "left", t.textAlign !== "start" && (e.tableAlign = t.textAlign), e.tableVAlign = "top", t.justifyContent) {
+      case "start":
+        t.flexDirection === "column" ? e.tableVAlign = "top" : e.tableAlign = "left";
+        break;
+      case "center":
+        t.flexDirection === "column" ? e.tableVAlign = "center" : e.tableAlign = "center";
+        break;
+      case "end":
+        t.flexDirection === "column" ? e.tableVAlign = "bottom" : e.tableAlign = "right";
+        break;
+    }
+    switch (t.alignItems) {
+      case "start":
+        t.flexDirection === "column" ? e.tableAlign = "top" : e.tableVAlign = "left";
+        break;
+      case "center":
+        t.flexDirection === "column" ? e.tableAlign = "center" : e.tableVAlign = "center";
+        break;
+      case "end":
+        t.flexDirection === "column" ? e.tableAlign = "bottom" : e.tableVAlign = "right";
+        break;
+    }
+    ["left", "center", "right"].includes(t.alignSelf) && (e.margin = "auto auto");
+    let l = t.margin.split(" ");
+    l[0] && l[0] === "auto" && (e.tableAlign = "center"), l[1] && l[1] === "auto" && (e.tableVAlign = "center");
+    let g = (i) => {
+      for (const r of this.supportedCSSProperties)
+        if (new RegExp(r + "$").test(i))
+          return !0;
+      return !1;
+    }, c = n.parentElement;
+    return Object.keys(t).forEach((i) => {
+      if (g(i))
+        try {
+          if (i.startsWith("font")) {
+            e[i] = t[i];
+            return;
+          }
+          let r = b(t[i], c);
+          if (r && c && s && ((i.includes("width") || i.includes("left") || i.includes("right")) && (r = r / c.getBoundingClientRect().width * 100 + "%"), (i.includes("height") || i.includes("top") || i.includes("bottom")) && (r = r / c.getBoundingClientRect().height * 100 + "%")), i.includes("width"), i === "display" && !t[i].includes("block"))
+            return;
+          typeof r == "number" && (r += "px", r === "0px" && (r = "auto")), e[i] = r || t[i];
+        } catch {
+          console.log(i, t[i]);
+        }
+    }), e;
+  }
 }
 class w {
   constructor() {
-    this.supportedCSSProperties = m.supportedCssProperties;
+    this._excludeElementPattern = null, this.settings = h, this.cssParser = new m(), this.img = new Image();
   }
-  parse(i, o = !1) {
-    if (!i) return {};
-    let t = window.getComputedStyle(i), n = {};
-    switch (n.tableAlign = "left", t.textAlign !== "start" && (n.tableAlign = t.textAlign), n.tableVAlign = "top", t.justifyContent) {
-      case "start":
-        n.tableVAlign = "top";
-        break;
-      case "center":
-        n.tableVAlign = "center";
-        break;
-      case "end":
-        n.tableVAlign = "bottom";
-        break;
-    }
-    ["left", "center", "right"].includes(t.alignItems) && (n.tableAlign = t.alignItems);
-    let s = t.margin.split(" ");
-    s[0] && s[0] === "auto" && (n.tableAlign = "center"), s[1] && s[1] === "auto" && (n.tableVAlign = "center");
-    let g = (e) => {
-      for (const r of this.supportedCSSProperties)
-        if (new RegExp(r + "$").test(e))
-          return !0;
-      return !1;
-    }, a = i.parentElement;
-    return Object.keys(t).forEach((e) => {
-      if (g(e))
-        try {
-          if (e.startsWith("font")) {
-            n[e] = t[e];
-            return;
-          }
-          let r = b(t[e], a);
-          if (r && a && o && ((e.includes("width") || e.includes("left") || e.includes("right")) && (r = r / a.getBoundingClientRect().width * 100 + "%"), (e.includes("height") || e.includes("top") || e.includes("bottom")) && (r = r / a.getBoundingClientRect().height * 100 + "%")), e === "display" && !t[e].includes("block"))
-            return;
-          typeof r == "number" && (r += "px", r === "0px" && (r = "auto")), n[e] = r || t[e];
-        } catch {
-          console.log(e, t[e]);
-        }
-    }), n;
+  excludeElementByPattern(n) {
+    return this._excludeElementPattern = new RegExp(n), this;
   }
-}
-class p {
-  constructor() {
-    this._excludeElementPattern = null, this.settings = m, this.cssParser = new w(), this.img = new Image();
-  }
-  excludeElementByPattern(i) {
-    return this._excludeElementPattern = new RegExp(i), this;
-  }
-  applyCss(i, o = {}, t = [], n = []) {
-    Object.keys(o).forEach((s) => {
-      n.length > 0 && !n.includes(s) || t.includes(s) || (i.style[s] = o[s]);
+  applyCss(n, s = {}, t = [], e = []) {
+    Object.keys(s).forEach((l) => {
+      e.length > 0 && !e.includes(l) || t.includes(l) || (n.style[l] = s[l]);
     });
   }
-  convert(i, o) {
-    if (this._excludeElementPattern && (this._excludeElementPattern.test(i.className) || this._excludeElementPattern.test(i.id)))
+  convert(n, s) {
+    if (this._excludeElementPattern && (this._excludeElementPattern.test(n.className) || this._excludeElementPattern.test(n.id)))
       return null;
     let t = {
       width: "",
       rows: {}
-    }, n = this.cssParser.parse(i);
-    if (i.nodeType !== Element.TEXT_NODE) {
-      let g = Array.from(i.childNodes), a = Array.from(g).filter((r) => r.nodeType === Node.ELEMENT_NODE && ["DIV", "SECTION", "ARTICLE", "MAIN", "ASIDE", "IMG"].includes(r.tagName)).length === 0, e = 0;
-      g.forEach((r, c) => {
-        if (t.rows.hasOwnProperty(e) || (t.rows[e] = {
+    }, e = this.cssParser.parse(n);
+    if (n.nodeType !== Element.TEXT_NODE) {
+      let g = Array.from(n.childNodes), c = Array.from(g).filter((r) => r.nodeType === Node.ELEMENT_NODE && ["DIV", "SECTION", "ARTICLE", "MAIN", "ASIDE", "IMG"].includes(r.tagName)).length === 0, i = 0;
+      g.forEach((r, a) => {
+        if (t.rows.hasOwnProperty(i) || (t.rows[i] = {
           children: [],
           top: 0,
           bottom: 0
-        }), r.nodeType === Element.TEXT_NODE || a) {
-          if (r.textContent.trim().length === 0)
+        }), r.nodeType === Element.TEXT_NODE || c) {
+          if (r.nodeType === Element.TEXT_NODE && r.textContent.trim().length === 0)
             return;
-          let l = t.rows[e].children.length - 1;
-          if (l < 0)
-            t.rows[e].children.push(this.getCloneNode(r));
-          else {
-            let d = document.createElement("div"), h = t.rows[e].children[l];
-            h.nodeType === Element.TEXT_NODE ? d.innerHTML += h.textContent : d.innerHTML += h;
-            let f = this.getCloneNode(r);
-            f.nodeType === Element.TEXT_NODE ? d.innerHTML += f.textContent : d.appendChild(f), t.rows[e].children[l] = d.innerHTML;
+          let o = t.rows[i].children.length - 1;
+          if (o < 0) {
+            let d = document.createElement("div");
+            d.setAttribute("temp", "true"), d.appendChild(this.getCloneNode(r)), t.rows[i].children.push(d);
+          } else {
+            let d = t.rows[i].children[o], f = this.getCloneNode(r);
+            d.appendChild(f), t.rows[i].children[o] = d;
           }
           return;
         }
         if (r.nodeType === Element.ELEMENT_NODE) {
-          let l = r.getBoundingClientRect();
-          t.rows[e].top === 0 && (t.rows[e].top = l.top), t.rows[e].bottom === 0 && (t.rows[e].bottom = l.bottom), l.top >= t.rows[e].bottom && (e++, t.rows[e] = {
+          let o = r.getBoundingClientRect();
+          t.rows[i].top === 0 && (t.rows[i].top = o.top), t.rows[i].bottom === 0 && (t.rows[i].bottom = o.bottom), o.top >= t.rows[i].bottom && (i++, t.rows[i] = {
             children: [],
-            top: l.top,
-            bottom: l.bottom
-          }), t.rows[e].top > l.top && (t.rows[e].top = l.top), l.bottom > t.rows[e].bottom && (t.rows[e].bottom = l.bottom);
-          let d = this.settings.supportedHTMLTags.includes(r.tagName.toLowerCase()) ? this.getCloneNode(r) : this.convert(r, i);
+            top: o.top,
+            bottom: o.bottom
+          }), t.rows[i].top > o.top && (t.rows[i].top = o.top), o.bottom > t.rows[i].bottom && (t.rows[i].bottom = o.bottom);
+          let d = this.settings.supportedHTMLTags.includes(r.tagName.toLowerCase()) ? this.getCloneNode(r) : this.convert(r, n);
           if (!d) return;
-          t.rows[e].children.push(d);
+          t.rows[i].children.push(d);
         }
       });
-    } else i.textContent.trim().length > 0 && t.rows[0].push(i.textContent);
-    let s = this.createTable();
-    return s.setAttribute("align", n.tableAlign ?? "left"), s.setAttribute("valign", n.tableVAlign ?? "top"), this.applyCss(s, n, ["width"]), Object.keys(t.rows).forEach((g) => {
-      let a = document.createElement("tr");
-      t.rows[g].children.forEach((e, r) => {
-        let c = document.createElement("td");
-        c.setAttribute("align", n.tableAlign ?? "left"), c.setAttribute("valign", n.tableVAlign ?? "top"), o && (c.style.width = n.width, e.tagName !== "TABLE" && e.getBoundingClientRect && (c.style.width = e.getBoundingClientRect().width + "px")), typeof e == "string" ? c.innerHTML = e : c.appendChild(e), a.appendChild(c);
-      }), s.querySelector("tbody").appendChild(a);
-    }), s;
+    } else n.textContent.trim().length > 0 && t.rows[0].push(n.textContent);
+    let l = this.createTable();
+    return l.setAttribute("align", e.tableAlign ?? "left"), l.setAttribute("valign", e.tableVAlign ?? "top"), this.applyCss(l, e, ["width"]), s || (l.style.width = "100%", l.style.height = "100%", l.style.margin = "0", l.style.padding = "0"), Object.keys(t.rows).forEach((g) => {
+      let c = document.createElement("tr");
+      t.rows[g].children.forEach((i, r) => {
+        let a = document.createElement("td");
+        if (a.setAttribute("align", e.tableAlign ?? "left"), a.setAttribute("valign", e.tableVAlign ?? "top"), s && (a.style.width = e.width, i.tagName !== "TABLE" && i.getBoundingClientRect)) {
+          let o = i.getBoundingClientRect().width;
+          o > 0 && (a.style.width = o + "px");
+        }
+        typeof i == "string" ? a.innerHTML = i : i.getAttribute("temp") ? (a.style.display = "inline-block", Array.from(i.childNodes).forEach((o) => {
+          a.appendChild(o);
+        })) : a.appendChild(i), c.appendChild(a);
+      }), l.querySelector("tbody").appendChild(c);
+    }), l;
   }
   createTable() {
-    let i = document.createElement("table");
-    i.setAttribute("border", 0), i.setAttribute("cellpadding", 0), i.setAttribute("cellspacing", 0);
-    let o = document.createElement("tbody");
-    return i.appendChild(o), i;
+    let n = document.createElement("table");
+    n.setAttribute("border", 0), n.setAttribute("cellpadding", 0), n.setAttribute("cellspacing", 0);
+    let s = document.createElement("tbody");
+    return n.appendChild(s), n;
   }
-  convertSvgToImage(i) {
-    if (!i instanceof SVGElement)
-      return i;
-    let o = document.createElement("img"), t = new Image();
-    const n = document.createElement("canvas"), s = new XMLSerializer().serializeToString(i);
+  convertSvgToImage(n) {
+    if (!n instanceof SVGElement)
+      return n;
+    let s = document.createElement("img");
+    s.style.verticalAlign = "middle", n.setAttribute("stroke", window.getComputedStyle(n).color);
+    let t = new Image();
+    const e = document.createElement("canvas"), l = new XMLSerializer().serializeToString(n);
     return t.onload = function() {
-      n.width = i.getBoundingClientRect().width, n.height = i.getBoundingClientRect().height, n.getContext("2d").drawImage(t, 0, 0), o.src = n.toDataURL("image/png");
-    }, t.src = "data:image/svg+xml;base64," + btoa(s), o;
+      e.width = n.getBoundingClientRect().width > 0 ? n.getBoundingClientRect().width : n.getAttribute("width"), e.height = n.getBoundingClientRect().height ? n.getBoundingClientRect().height : n.getAttribute("height"), e.getContext("2d").drawImage(t, 0, 0), s.src = e.toDataURL("image/png");
+    }, t.src = "data:image/svg+xml;base64," + btoa(l), s;
   }
-  getCloneNode(i) {
-    if (i instanceof SVGElement)
-      return this.convertSvgToImage(i);
-    let o = i.cloneNode(!1);
-    if (i.nodeType === Node.ELEMENT_NODE) {
-      let n = this.cssParser.parse(i);
-      Array.from(i.attributes).forEach((s) => {
-        ["href", "src"].includes(s.name) || o.removeAttribute(s.name);
-      }), Object.keys(n).forEach((s) => {
-        o.style[s] = n[s];
-      });
+  getCloneNode(n) {
+    if (n instanceof SVGElement)
+      return this.convertSvgToImage(n);
+    let s = n.cloneNode(!1);
+    if (n.nodeType === Node.ELEMENT_NODE) {
+      let e = this.cssParser.parse(n);
+      Array.from(n.attributes).forEach((l) => {
+        ["href", "src", "title", "alt"].includes(l.name) || s.removeAttribute(l.name);
+      }), Object.keys(e).forEach((l) => {
+        s.style[l] = e[l];
+      }), s.style.display = "inline-block";
     }
-    let t = i.childNodes;
-    return Array.from(t).forEach((n) => {
-      o.appendChild(this.getCloneNode(n));
-    }), o;
+    let t = n.childNodes;
+    return Array.from(t).forEach((e) => {
+      s.appendChild(this.getCloneNode(e));
+    }), s;
   }
 }
 export {
-  p as default
+  w as default
 };
