@@ -49,13 +49,10 @@ document.querySelector('#action').addEventListener('click',function(e){
     placeholder.innerHTML = textArea.value;
     outputContainer.style.display = null;
     document.body.appendChild(placeholder);
-
-    // setTimeout(()=>{
-        outputValue = w.convert(placeholder);
-        output.appendChild(outputValue);
-        textArea.style.display = 'none';
-        e.target.innerText = 'Reset';
-    // }, 1200)
+    outputValue = w.convert(placeholder);
+    output.appendChild(outputValue);
+    textArea.style.display = 'none';
+    e.target.innerText = 'Reset';
 
     placeholder.remove();
 });
