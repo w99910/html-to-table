@@ -38,6 +38,7 @@ document.querySelector('#action').addEventListener('click',function(e){
     if(textArea.style.display === 'none'){
         textArea.style.display = null;
         outputContainer.style.display = 'none';
+        output.innerHTML = '';
         e.target.innerText = 'Convert';
         return;
     }
