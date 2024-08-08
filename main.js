@@ -58,10 +58,12 @@ document.querySelector('#action').addEventListener('click',function(e){
 });
 
 previewBtn.addEventListener('click',function(e){
+    output.innerHTML = ''
     output.appendChild(outputValue)
 })
 
 codeBtn.addEventListener('click',function(e){
+    output.innerHTML = ''
     output.innerText = outputValue.innerHTML
 })
 
