@@ -1,4 +1,6 @@
-# HTML To Table
+# HTML To Email-Compatible Table
+
+![cover](cover.png)
 
 > DEMO: https://w99910.github.io/html-to-table/
 
