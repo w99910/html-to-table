@@ -54,7 +54,7 @@ document.querySelector('#action').addEventListener('click',function(e){
     textArea.style.display = 'none';
     e.target.innerText = 'Reset';
 
-    placeholder.remove();
+    // placeholder.remove();
 });
 
 previewBtn.addEventListener('click',function(e){
@@ -64,7 +64,7 @@ previewBtn.addEventListener('click',function(e){
 
 codeBtn.addEventListener('click',function(e){
     output.innerHTML = ''
-    output.innerText = outputValue.innerHTML
+    output.innerText = outputValue.outerHTML
 })
 
 // document.querySelector('#action').click();

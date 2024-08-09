@@ -2,7 +2,7 @@
 
 > DEMO: https://w99910.github.io/html-to-table/
 
-### It's zero dependency and light-weight with **18.2kb** unpacked size.
+### It's zero dependency and light-weight.
 
 I have been trying to send emails using html layout but there are lots of html elements and styles that email clients
 don't support.
@@ -40,10 +40,26 @@ html2table.excludeElementByPattern('toolbar')
 html2table.convert(document.querySelector('your-element-to-convert'));
 ```
 
+## Tips
+
+- `Base64` image data does not work. So use `absolute` image url.
+- Don't use `linear-gradient` css function in inline css. Instead, create the gradient as an image and load it using `url`.
+```css
+{
+    background: url("link-to-your-image")
+}
+```
+- Use `background-color` as a fall-back background color if image would not be working in some email clients.
+
+
 ## MIT LICENSE
 
 ## CHANGELOG
 
+- **0.1.2**
+  - Add `bgcolor` attribute for fall-back `background` css style.
+  - `align` and `valign` of table now consider the css properties of parent element. if there is no parent element, default value will be used. 
+  -  Deprecated feature that convert SVG to Base64 PNG. 
 - **0.1.1** 
   - Add `alt` and `title` to allowed attribute when it is cloned. 
   - Fix `width` being `0` in some cases.

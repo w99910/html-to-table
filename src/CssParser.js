@@ -11,50 +11,50 @@ export default class CssParser {
         // initially parse supported css properties
         // change non-pixel unit to pixel unit
         let elementCSSProperties = window.getComputedStyle(element);
-        let settings = {};
+        let css = {};
 
-        settings.tableAlign = 'left';
+        css.tableAlign = 'left';
 
         if (elementCSSProperties.textAlign !== 'start') {
-            settings.tableAlign = elementCSSProperties.textAlign
+            css.tableAlign = elementCSSProperties.textAlign
         }
 
-        settings.tableVAlign = 'top'
+        css.tableVAlign = 'top'
         switch (elementCSSProperties.justifyContent) {
             case 'start' :
-               elementCSSProperties.flexDirection === 'column'? settings.tableVAlign = 'top': settings.tableAlign = 'left';
+               elementCSSProperties.flexDirection === 'column'? css.tableVAlign = 'top': css.tableAlign = 'left';
                 break;
             case 'center':
-                elementCSSProperties.flexDirection === 'column'? settings.tableVAlign = 'center': settings.tableAlign = 'center';
+                elementCSSProperties.flexDirection === 'column'? css.tableVAlign = 'center': css.tableAlign = 'center';
                 break;
             case 'end':
-                elementCSSProperties.flexDirection === 'column'? settings.tableVAlign = 'bottom': settings.tableAlign = 'right';
+                elementCSSProperties.flexDirection === 'column'? css.tableVAlign = 'bottom': css.tableAlign = 'right';
                 break;
         }
 
         switch (elementCSSProperties.alignItems) {
             case 'start' :
-                elementCSSProperties.flexDirection === 'column'? settings.tableAlign = 'top': settings.tableVAlign = 'left';
+                elementCSSProperties.flexDirection === 'column'? css.tableAlign = 'top': css.tableVAlign = 'left';
                 break;
             case 'center':
-                elementCSSProperties.flexDirection === 'column'? settings.tableAlign = 'center': settings.tableVAlign = 'center';
+                elementCSSProperties.flexDirection === 'column'? css.tableAlign = 'center': css.tableVAlign = 'center';
                 break;
             case 'end':
-                elementCSSProperties.flexDirection === 'column'? settings.tableAlign = 'bottom': settings.tableVAlign = 'right';
+                elementCSSProperties.flexDirection === 'column'? css.tableAlign = 'bottom': css.tableVAlign = 'right';
                 break;
         }
 
         if (['left', 'center', 'right'].includes(elementCSSProperties.alignSelf)) {
-            settings.margin = 'auto auto'
+            css.margin = 'auto auto'
         }
 
         let margin = elementCSSProperties.margin.split(' ');
         if (margin[0] && margin[0] === 'auto') {
-            settings.tableAlign = 'center';
+            css.tableAlign = 'center';
         }
 
         if (margin[1] && margin[1] === 'auto') {
-            settings.tableVAlign = 'center'
+            css.tableVAlign = 'center'
         }
         let isValidCSS = (checkProperty) => {
             for (const property of this.supportedCSSProperties) { // Use a for...of loop
@@ -69,7 +69,7 @@ export default class CssParser {
             if (isValidCSS(property)) {
                 try {
                     if (property.startsWith('font')) {
-                        settings[property] = elementCSSProperties[property];
+                        css[property] = elementCSSProperties[property];
                         return;
                     }
                     let value = convertToPixel(elementCSSProperties[property], parentElement)
@@ -97,13 +97,17 @@ export default class CssParser {
                         }
 
                     }
-                    settings[property] = value ? value : elementCSSProperties[property];
+                    css[property] = value ? value : elementCSSProperties[property];
                 } catch (e) {
                     console.log(property, elementCSSProperties[property])
                 }
 
             }
         })
-        return settings;
+
+        // force box sizing to border-box
+        // css.boxSizing = "border-box"
+
+        return css;
     }
 }

@@ -32,7 +32,6 @@ export default class HTML2Table {
             width: '',
             rows: {},
         }
-        let css = this.cssParser.parse(element);
         if (element.nodeType !== Element.TEXT_NODE) {
             let childNodes = Array.from(element.childNodes);
             let isText = Array.from(childNodes).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE', 'IMG'].includes(child.tagName)).length === 0;
@@ -58,20 +57,8 @@ export default class HTML2Table {
                         object.rows[rowIndex].children.push(container)
                     } else {
                         let lastChild = object.rows[rowIndex].children[lastIndex];
-                        // if (lastChild.nodeType === Element.TEXT_NODE) {
-                        //     container.innerHTML += lastChild.textContent;
-                        // } else {
-                        //     // console.log(lastChild)
-                        //     container.appendChild(lastChild);
-                        // }
                         let currentChild = this.getCloneNode(childNode);
-
-                        // if (currentChild.nodeType === Element.TEXT_NODE) {
-                        //     container.innerHTML += currentChild.textContent;
-                        // } else {
-                            lastChild.appendChild(currentChild);
-                        // }
-                        // console.log(lastChild)
+                        lastChild.appendChild(currentChild);
                         object.rows[rowIndex].children[lastIndex] = lastChild;
                     }
                     return;
@@ -117,9 +104,14 @@ export default class HTML2Table {
             object.rows[0].push(element.textContent);
         }
 
+        let parentCSS = this.cssParser.parse(parentElement)
+        let css = this.cssParser.parse(element);
+
         let table = this.createTable();
-        table.setAttribute('align', css.tableAlign ?? 'left');
-        table.setAttribute('valign', css.tableVAlign ?? 'top');
+        table.setAttribute('align', parentCSS.tableAlign ?? 'left');
+        table.setAttribute('valign', parentCSS.tableVAlign ?? 'top');
+        table.setAttribute('bgcolor', css.backgroundColor ?? css.background);
+
         this.applyCss(table, css, ['width'])
 
         if(!parentElement){
@@ -176,39 +168,7 @@ export default class HTML2Table {
         return table;
     }
 
-    convertSvgToImage(element) {
-        if (!element instanceof SVGElement) {
-            return element;
-        }
-        let imgEl = document.createElement('img');
-        imgEl.style.verticalAlign = 'middle';
-        element.setAttribute('stroke' ,window.getComputedStyle(element).color)
-
-        let img = new Image();
-        const canvas = document.createElement('canvas');
-        const svgData = new XMLSerializer().serializeToString(element);
-
-        img.onload = function () {
-            // Set canvas size
-            canvas.width = element.getBoundingClientRect().width > 0 ? element.getBoundingClientRect().width: element.getAttribute('width');
-            canvas.height = element.getBoundingClientRect().height ? element.getBoundingClientRect().height: element.getAttribute('height');
-            let ctx = canvas.getContext('2d')
-            ctx.drawImage(img, 0, 0);
-            imgEl.src = canvas.toDataURL('image/png');
-        };
-
-        // console.log(svgData)
-
-        img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
-
-        return imgEl;
-    }
-
     getCloneNode(element) {
-        // console.log(element)
-        if (element instanceof SVGElement) {
-            return this.convertSvgToImage(element)
-        }
         let cloneChild = element.cloneNode(false)
         if (element.nodeType === Node.ELEMENT_NODE) {
             let _css = this.cssParser.parse(element);
