@@ -112,7 +112,7 @@ export default class HTML2Table {
         table.setAttribute('valign', parentCSS.tableVAlign ?? 'top');
         table.setAttribute('bgcolor', css.backgroundColor ?? css.background);
 
-        this.applyCss(table, css, ['width'])
+        this.applyCss(table, css)
 
         if(!parentElement){
             // set width 100%
@@ -130,7 +130,6 @@ export default class HTML2Table {
                 td.setAttribute('valign', css.tableVAlign ?? 'top');
                 if (parentElement) {
                     td.style.width = css.width;
-
                     if (childNode.tagName !== 'TABLE' && childNode.getBoundingClientRect) {
                       let width = childNode.getBoundingClientRect().width;
                       if(width > 0){
@@ -172,28 +171,23 @@ export default class HTML2Table {
         let cloneChild = element.cloneNode(false)
         if (element.nodeType === Node.ELEMENT_NODE) {
             let _css = this.cssParser.parse(element);
-
             Array.from(element.attributes).forEach((attribute) => {
                 if (['href', 'src','title','alt'].includes(attribute.name)) {
                     return;
                 }
                 cloneChild.removeAttribute(attribute.name)
             })
-
             Object.keys(_css).forEach((prop) => {
                 cloneChild.style[prop] = _css[prop];
             })
-
             cloneChild.style.display = 'inline-block'
         }
-
 
         let children = element.childNodes;
         // first apply css style to children
         Array.from(children).forEach((child) => {
             cloneChild.appendChild(this.getCloneNode(child))
         })
-
         return cloneChild;
     }
 }

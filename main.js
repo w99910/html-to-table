@@ -11,7 +11,7 @@ let previewBtn = document.querySelector('#preview');
 let codeBtn = document.querySelector('#code');
 
 textArea.value = `<div style="background: #131217; display: flex; justify-content:center; font-size: 16px; font-family: 'Source Sans Pro',Helvetica,sans-serif; align-items:center; padding: 20px; color:white;">
-  <div style=" width: 400px; display: flex; padding: 10px; flex-direction: column; background: linear-gradient(to bottom, transparent 0%, rgba(217, 217, 217, 0.03) 36%, rgba(115, 115, 115, 0.13) 100%); border:1px solid #323232; border-radius: 10px;">
+  <div style=" width: 50%; display: flex; padding: 10px; flex-direction: column; background: linear-gradient(to bottom, transparent 0%, rgba(217, 217, 217, 0.03) 36%, rgba(115, 115, 115, 0.13) 100%); border:1px solid #323232; border-radius: 10px;">
    <div style="display:flex; align-items:center;">
      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity">
      <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>
@@ -49,12 +49,12 @@ document.querySelector('#action').addEventListener('click',function(e){
     placeholder.innerHTML = textArea.value;
     outputContainer.style.display = null;
     document.body.appendChild(placeholder);
-    outputValue = w.convert(placeholder);
+    outputValue = w.convert(placeholder.children[0]);
     output.appendChild(outputValue);
     textArea.style.display = 'none';
     e.target.innerText = 'Reset';
 
-    // placeholder.remove();
+    placeholder.remove();
 });
 
 previewBtn.addEventListener('click',function(e){

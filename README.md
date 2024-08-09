@@ -51,7 +51,6 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 ```
 - Use `background-color` as a fall-back background color if image would not be working in some email clients.
 
-
 ## MIT LICENSE
 
 ## CHANGELOG
