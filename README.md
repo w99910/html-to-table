@@ -13,9 +13,23 @@ So I am working on this library to convert almost html layout to email-compatibl
 
 ## Installation
 
+Choose one of the following methods.
+- NPM
 ```
 npm i html-to-table
 ```
+
+- Github ESM Module
+```
+import HTML2Table from 'https://github.com/w99910/html-to-table/blob/master/dist/html-to-table.js'
+```
+
+- Github CJS
+
+```js
+const HTML2Table = require('https://github.com/w99910/html-to-table/blob/master/dist/html-to-table.cjs')
+```
+
 
 ## Usage
 
@@ -42,16 +56,21 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 
 ## Tips
 
-- `Base64` image data does not work. So use `absolute` image url.
+- I suggest you target mobile device layout first so that the layout will work both on mobile and desktop.
+- `Base64` image data does not work. So host the image on cloud and use it.
 - Don't use `linear-gradient` css function in inline css. Instead, create the gradient as an image and load it using `url`.
-```css
-{
-    background: url("link-to-your-image")
-}
-```
+    ```js
+    style="background: url('link-to-your-image')"
+    ```
 - Use `background-color` as a fall-back background color if image would not be working in some email clients.
 
-## MIT LICENSE
+## LICENSE
+[MIT License](LICENSE)
+
+## Articles
+
+- [Medium Article](https://medium.com/@thomasbrillion/html-to-email-compatible-table-%EF%B8%8F-fb33481d231b)
+- [Dev.to](https://dev.to/thomas_brillion/html-to-email-31k9)
 
 ## CHANGELOG
 

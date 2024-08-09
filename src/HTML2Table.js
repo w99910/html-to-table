@@ -112,14 +112,14 @@ export default class HTML2Table {
         table.setAttribute('valign', parentCSS.tableVAlign ?? 'top');
         table.setAttribute('bgcolor', css.backgroundColor ?? css.background);
 
-        this.applyCss(table, css)
+        this.applyCss(table, css, ['width'])
 
         if(!parentElement){
             // set width 100%
             table.style.width = '100%'
             table.style.height = '100%'
             table.style.margin = '0';
-            table.style.padding = '0'
+            table.style.padding = '0';
         }
 
         Object.keys(object.rows).forEach((rowIndex) => {
