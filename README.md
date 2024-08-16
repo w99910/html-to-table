@@ -68,8 +68,8 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 
 ## To-DO
 
-- [] Converting `rem` doesn't render exactly as it is.
-- [] even if only `border-top` is provided, all border is being rendered.  
+- [ ] Converting `rem` doesn't render exactly as it is.
+- [ ] even if only `border-top` is provided, all border is being rendered.  
 ## LICENSE
 [MIT License](LICENSE)
 
