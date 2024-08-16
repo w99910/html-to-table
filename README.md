@@ -66,6 +66,10 @@ html2table.convert(document.querySelector('your-element-to-convert'));
     ```
 - Use `background-color` as a fall-back background color if image would not be working in some email clients.
 
+## To-DO
+
+- [] Converting `rem` doesn't render exactly as it is.
+- [] even if only `border-top` is provided, all border is being rendered.  
 ## LICENSE
 [MIT License](LICENSE)
 
