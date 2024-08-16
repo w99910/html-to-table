@@ -69,7 +69,8 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 ## To-DO
 
 - [ ] Converting `rem` doesn't render exactly as it is.
-- [ ] even if only `border-top` is provided, all border is being rendered.  
+- [ ] even if only `border-top` is provided, all border is being rendered.
+- [ ] Change the logic for `v-align` as it is giving unnecessary vertical space.
 ## LICENSE
 [MIT License](LICENSE)
 
