@@ -65,12 +65,13 @@ html2table.convert(document.querySelector('your-element-to-convert'));
     style="background: url('link-to-your-image')"
     ```
 - Use `background-color` as a fall-back background color if image would not be working in some email clients.
+- Skip using `height` property if possible since it can prevent uninteneded padding or margin.
 
 ## To-DO
 
 - [ ] Converting `rem` doesn't render exactly as it is.
-- [ ] even if only `border-top` is provided, all border is being rendered.
-- [ ] Change the logic for `v-align` as it is giving unnecessary vertical space.
+- [x] even if only `border-top` is provided, all border is being rendered.
+- [x] Change the logic for `v-align` as it is giving unnecessary vertical space.
 ## LICENSE
 [MIT License](LICENSE)
 
@@ -81,6 +82,12 @@ html2table.convert(document.querySelector('your-element-to-convert'));
 
 ## CHANGELOG
 
+- **0.1.4**
+  - Drop setting `height` css property for the parent.
+  - Remove `v-align` in the output. Please tweak the output as you want.
+  - `Height` property is converted to `auto` for child nodes unless you unexplictly set it as inlined css.
+  - Append the bounding rect width as the `width` style when tranversing the child nodes. 
+  - Consider the styles of the embedding classes before get the window's computed styles.
 - **0.1.2**
   - Add `bgcolor` attribute for fall-back `background` css style.
   - `align` and `valign` of table now consider the css properties of parent element. if there is no parent element, default value will be used. 

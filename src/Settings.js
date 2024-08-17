@@ -4,7 +4,8 @@ export default {
         'background', // Shorthand for multiple background properties
         'backgroundImage',
         'backgroundPosition',
-        'border(.)+',        // Shorthand for border-width, border-style, and border-color
+        'border(Top|Left|Right|Bottom)(.)+',
+        'borderCollapse',       // Shorthand for border-width, border-style, and border-color
         'margin(.)+',         // Shorthand for all margin directions
         'padding(.)+',
         'width',
@@ -21,7 +22,7 @@ export default {
         'textIndent',
         'textTransform',
         'letterSpacing',
-        // 'display', // For 'block' or 'inline-block'
+        'display', // For 'block' or 'inline-block'
         'listStyleType',
         'listStylePosition',
     ],

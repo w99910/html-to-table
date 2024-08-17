@@ -32,6 +32,7 @@ export default class HTML2Table {
             width: '',
             rows: {},
         }
+
         if (element.nodeType !== Element.TEXT_NODE) {
             let childNodes = Array.from(element.childNodes);
             let isText = Array.from(childNodes).filter((child) => child.nodeType === Node.ELEMENT_NODE && ['DIV', 'SECTION', 'ARTICLE', 'MAIN', 'ASIDE', 'IMG'].includes(child.tagName)).length === 0;
@@ -52,6 +53,7 @@ export default class HTML2Table {
                     let lastIndex = object.rows[rowIndex].children.length - 1;
                     if (lastIndex < 0) {
                         let container = document.createElement('div');
+                        this.applyCss(container, this.cssParser.parse(childNode.parentElement))
                         container.setAttribute('temp', "true")
                         container.appendChild(this.getCloneNode(childNode))
                         object.rows[rowIndex].children.push(container)
@@ -104,20 +106,17 @@ export default class HTML2Table {
             object.rows[0].push(element.textContent);
         }
 
-        let parentCSS = this.cssParser.parse(parentElement)
-        let css = this.cssParser.parse(element);
+        let parentCSS = this.cssParser.parse(parentElement, false, ['display'])
+        let css = this.cssParser.parse(element, false, ['display']);
 
         let table = this.createTable();
         table.setAttribute('align', parentCSS.tableAlign ?? 'left');
-        table.setAttribute('valign', parentCSS.tableVAlign ?? 'top');
         table.setAttribute('bgcolor', css.backgroundColor ?? css.background);
-
         this.applyCss(table, css, ['width'])
 
-        if(!parentElement){
-            // set width 100%
+        if (!parentElement) {
             table.style.width = '100%'
-            table.style.height = '100%'
+            table.style.height = element.style.height
             table.style.margin = '0';
             table.style.padding = '0';
         }
@@ -127,25 +126,25 @@ export default class HTML2Table {
             object.rows[rowIndex].children.forEach((childNode, i) => {
                 let td = document.createElement('td');
                 td.setAttribute('align', css.tableAlign ?? 'left');
-                td.setAttribute('valign', css.tableVAlign ?? 'top');
                 if (parentElement) {
-                    td.style.width = css.width;
+                    td.style.width = childNode.style.width ?? css.width;
                     if (childNode.tagName !== 'TABLE' && childNode.getBoundingClientRect) {
-                      let width = childNode.getBoundingClientRect().width;
-                      if(width > 0){
-                          td.style.width =  width + 'px';
-                      }
+                        let width = childNode.getBoundingClientRect().width;
+                        if (width > 0) {
+                            td.style.width = width + 'px';
+                        }
                     }
                 }
                 if (typeof childNode === 'string') {
                     td.innerHTML = childNode;
                 } else {
-                    if(childNode.getAttribute('temp')){
-                        td.style.display = 'inline-block'
-                        Array.from(childNode.childNodes).forEach((innerChild)=>{
+                    if (childNode.getAttribute('temp')) {
+                        td.style.display = 'inline-block';
+                        table.style.width = childNode.style.width;
+                        Array.from(childNode.childNodes).forEach((innerChild) => {
                             td.appendChild(innerChild)
                         })
-                    }else{
+                    } else {
                         td.appendChild(childNode)
                     }
                 }
@@ -172,7 +171,7 @@ export default class HTML2Table {
         if (element.nodeType === Node.ELEMENT_NODE) {
             let _css = this.cssParser.parse(element);
             Array.from(element.attributes).forEach((attribute) => {
-                if (['href', 'src','title','alt'].includes(attribute.name)) {
+                if (['href', 'path', 'src', 'title', 'alt'].includes(attribute.name)) {
                     return;
                 }
                 cloneChild.removeAttribute(attribute.name)
@@ -180,6 +179,18 @@ export default class HTML2Table {
             Object.keys(_css).forEach((prop) => {
                 cloneChild.style[prop] = _css[prop];
             })
+            cloneChild.style.height = element.style.height ?? 'auto'
+            if (element.style.display?.includes('inline') || !_css.display?.includes('block')) {
+                cloneChild.style.width = element.style.width ?? 'auto'
+            } else {
+                // exclude inline such as span, h1, h2, p
+                let boundingRect = element.getBoundingClientRect();
+                if (boundingRect.width > 0) {
+                    cloneChild.style.width = boundingRect.width + 'px'
+                }
+            }
+
+
             cloneChild.style.display = 'inline-block'
         }
 

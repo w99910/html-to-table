@@ -9,7 +9,7 @@ export default function (_value, parentElement) {
     if (value.endsWith('px')) {
         return numberValue; // Already in pixels
     } else if (value.endsWith('%')) {
-        return false;
+        return value;
     } else if (value.endsWith('em') || value.endsWith('rem')) {
         const fontSize = parseFloat(getComputedStyle(parentElement).fontSize);
         return numberValue * fontSize;
